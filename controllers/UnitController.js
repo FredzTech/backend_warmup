@@ -6,30 +6,40 @@ const Course = require("../models/CourseModel");
 // Perfect Illustration of One to many relationship.
 const createUnit = async (req, res) => {
   try {
-    console.log(`New Unit Request. ${JSON.stringify(req.body)}`);
-    let { courseTitle, unitNo, unitName, unitDescription } = req.body;
+    let { courseTitle, unitCode, unitName, unitDescription } = req.body;
     let unitData = {
-      unitNo,
+      unitCode,
       unitName,
       unitDescription,
     };
+    console.log(unitData);
     let newUnit = await Unit.create(unitData);
     newUnit.save();
     let { _id: unitID } = newUnit; // Extracting ID from staved Lesson
     let { _id: courseID } = await Course.findOne({ courseTitle }); //Taking the ID of C Lesson
-    let courseData = await Course.findByIdAndUpdate(
-      courseID,
-      { $push: { Units: unitID } },
-      { new: true, useFindAndModify: false, runValidation: true }
-    );
-    if (courseData._doc.Units.includes(unitID)) {
-      // We can safely say that the unit has been created.
-      res.status(201);
+    if (courseID == null || courseID == undefined) {
+      res.status(400).json({ message: "Course not found" });
+    } else {
+      let courseData = await Course.findByIdAndUpdate(
+        courseID,
+        { $push: { units: unitID } },
+        { new: true, useFindAndModify: false, runValidation: true }
+      );
+      if (courseData._doc.units.includes(unitID)) {
+        // We can safely say that the unit has been created.
+        res.status(201);
+      }
     }
   } catch (err) {
-    console.log(err);
-
-    res.status(500).json(err);
+    if (err.code == 11000) {
+      console.log(JSON.stringify(err));
+      let errorBody = { message: "This unit already exists!" };
+      res.status(400).json(errorBody);
+    } else {
+      let { _message, name } = err;
+      let errorBody = { _message, name };
+      res.status(400).json(errorBody);
+    }
   }
 };
 

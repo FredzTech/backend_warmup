@@ -1,17 +1,27 @@
+const fs = require("fs"); //Enables us to interact with the servers fs performing crud ops to it.
+const util = require("util"); //Kinda revolutionalizes fs methods to promises which become sweeter to handle.s
+const unlinkFile = util.promisify(fs.unlink); //Nispy method for deleting files.
+
+const { getFileStream, uploadFile } = require("../controllers/s3Controller");
+
 // MODEL IMPORTATION
 //===================
 const Course = require("../models/CourseModel");
 
+const fileCleanup = async (req, res, next) => {
+  const file = req.file;
+  const result = await uploadFile(file);
+  await unlinkFile(file.path);
+  req.results = result;
+  next();
+};
 const createCourse = async (req, res) => {
   try {
-    console.log(`New Course Upload Request. ${JSON.stringify(req.results)}`);
     let { courseTitle } = req.body;
     let { Location: courseImage } = req.results;
     let courseData = { courseTitle, courseImage };
-    console.log(courseData);
     let newCourse = await Course.create(courseData);
     newCourse.save();
-    console.log("Course Data saved successfully");
     res.status(201);
   } catch (err) {
     // DESTRUCTURING MONGODB ATLAS ERROR.
@@ -30,11 +40,11 @@ const createCourse = async (req, res) => {
 const findAllCourses = async (req, res) => {
   // All the data will already be appended by the units.
   try {
-    let data = await Chapter.find({}).populate("CLessons");
+    let data = await Course.find({}); //Find everything for me.
     console.log(data);
     res.status(200).json(data);
   } catch (error) {
     res.status(500).send(error);
   }
 };
-module.exports = { createCourse, findAllCourses };
+module.exports = { createCourse, findAllCourses, fileCleanup };
