@@ -3,20 +3,17 @@ const { Schema } = mongoose;
 
 // Creates a model for saving customer credentials to the database.
 //==================================================================
-const CredentialSchema = new Schema(
+const StudentSchema = new Schema(
   {
-    username: {
-      type: String,
-      required: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true },
+    password: { type: String, required: true },
+    paid: { type: Boolean, required: true, default: false },
     role: {
       type: String,
       required: true,
-      default: "new user",
+      default: "student",
     },
   },
   {
@@ -36,6 +33,6 @@ const CredentialSchema = new Schema(
 //   }
 // });
 
-const CredentialModel = mongoose.model("Credential", CredentialSchema);
+const Student = mongoose.model("Student", StudentSchema);
 
-module.exports = CredentialModel;
+module.exports = Student;

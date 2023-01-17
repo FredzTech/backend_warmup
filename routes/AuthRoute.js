@@ -9,7 +9,10 @@ const {
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
-const Credentials = require("../models/Credentials");
+// MODELS SECTION
+const Student = require("../models/StudentModel");
+const Tutor = require("../models/TutorModel");
+const RefreshToken = require("../models/RefreshTokensModel");
 
 // DATA TO BE ACCESSED.
 //=====================
@@ -33,87 +36,82 @@ const posts = [
   },
 ];
 
-// REFRESH TOKEN STORAGE.
-//=======================
-let refreshTokens = [];
-
 // CONSUMING CONTENT.
 //===================
 router.get("/posts", authenticateToken, (req, res) => {
   console.log(`Payload to be utilized ${req.user}`);
   res.json(posts.filter((post) => post.username === req.user.name));
 });
-// RENEWING THE ACCESS TOKENS BASED ON THE REFRESH TOKEN
-//=======================================================
-router.post("/token", (req, res) => {
-  const refreshToken = req.body.refreshToken;
-  //   Trap 1 : Checks if the refresh token is a bluff/empty.
-  if (refreshToken == null) {
-    return res.status(401).json({ message: "No refresh token received." });
-  }
-  // Trap 2 : Compares the refresh tokens
-  if (!refreshTokens.includes(refreshToken)) {
-    return res
-      .status(403)
-      .json({ message: "Refresh token has not been found." });
-  }
-  // We need to delete the previous refresh token for security reasons.
-  //   Trap 3 : Regenerates our short term access token (Its all about verifying payload and extracting info
-  // again to be used in the regeneration of the access token.)
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, payload) => {
-    if (err)
-      return res.status(403).json({
-        message:
-          "We have your refresh token but somehow we are encountering some issues.",
-      });
-    const accessToken = generateAccessToken({ name: payload.name });
-    const refreshToken = generateRefreshToken({ name: payload.name });
-    res.json({ accessToken, refreshToken });
-  });
-});
 
 // GENERATES THE REFRESH & ACCESS TOKENS
 //========================================
-router.post("/register", async (req, res) => {
+router.post("/register-student", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     let credentials = {
-      username: req.body.username,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
       password: hashedPassword,
+      role: "student",
     };
-    const user = await Credentials.create(credentials);
-    user.save();
-    res.status(201).json({ message: "User has been created successfuly." });
+    const student = await Student.create(credentials);
+    student.save();
+    res.status(201);
   } catch (error) {
-    res.status(500).json({ message: error });
+    res.status(400).json({ message: error });
+  }
+});
+
+router.post("/register-tutor", async (req, res) => {
+  try {
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    let credentials = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: hashedPassword,
+      role: "tutor",
+    };
+    const tutor = await Tutor.create(credentials);
+    tutor.save();
+    res.status(201);
+  } catch (error) {
+    res.status(400).json({ message: error });
   }
 });
 
 // GENERATES THE REFRESH & ACCESS TOKENS
 //========================================
-router.post("/login", async (req, res) => {
-  console.log(req.body.username);
-
+router.post("/student-login", async (req, res) => {
   // Retrieving user credentials from our database.
-  let UserData = await Credentials.findOne({ username: req.body.username });
-  console.log(UserData);
-  if (UserData == null) {
-    res.status(400).json({ message: "User not found" });
+  let studentData = await Student.findOne({ firstName: req.body.FirstName });
+  console.log("Student Found :-");
+  console.log(studentData);
+  if (studentData == null) {
+    res.status(401).json({ message: "User not found" });
   } else {
-    const { username, role, password } = UserData;
-
+    const { firstName, lastName, role, password } = studentData;
     // Step 2 : Comparing passwords using bcrypt compare function.
     try {
       if (await bcrypt.compare(req.body.password, password)) {
         // Step 2 : Generating User Payload, if the user is valid.
-        const user = { name: username, role }; //Our payload.
+        const user = { firstName, lastName, role }; //Our payload.
         // Step 3 : Generating the access & refresh tokens
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
         //Step 4 : Saving a copy of the refresh token to our database.
-        refreshTokens.push(refreshToken);
+        let { _id: tokenID } = await RefreshToken.findOne({ name: "tokens" }); //Taking the ID of C Lesson
+        let refreshTokenData = await RefreshToken.findByIdAndUpdate(
+          tokenID,
+          { $push: { data: refreshToken } },
+          { new: true, useFindAndModify: false, runValidation: true }
+        );
+        if (refreshTokenData._doc.data.includes(refreshToken)) {
+          res.status(201).json({ accessToken, refreshToken });
+        }
+        // refreshTokens.push(refreshToken);
         //Step 5 : Sending refresh and access token to client.
-        res.status(200).json({ accessToken, refreshToken });
       } else {
         res.status(401).json({ message: "The passwords do not match." });
       }
@@ -126,14 +124,100 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// GENERATES THE REFRESH & ACCESS TOKENS FOR TUTOR
+//=================================================
+router.post("/tutor-login", async (req, res) => {
+  // Retrieving user credentials from our database.
+  let tutorData = await Student.findOne({ firstName: req.body.FirstName });
+  console.log("Tutor Found :-");
+  console.log(tutorData);
+  if (tutorData == null) {
+    res.status(401).json({ message: "User not found" });
+  } else {
+    const { firstName, lastName, role, password } = tutorData;
+    // Step 2 : Comparing passwords using bcrypt compare function.
+    try {
+      if (await bcrypt.compare(req.body.password, password)) {
+        // Step 2 : Generating User Payload, if the user is valid.
+        const user = { firstName, lastName, role }; //Our payload.
+        // Step 3 : Generating the access & refresh tokens
+        const accessToken = generateAccessToken(user);
+        const refreshToken = generateRefreshToken(user);
+        //Step 4 : Saving a copy of the refresh token to our database.
+        let { _id: tokenID } = await RefreshToken.findOne({ name: "tokens" }); //Taking the ID of C Lesson
+        let refreshTokenData = await RefreshToken.findByIdAndUpdate(
+          tokenID,
+          { $push: { data: refreshToken } },
+          { new: true, useFindAndModify: false, runValidation: true }
+        );
+        if (refreshTokenData._doc.data.includes(refreshToken)) {
+          res.status(201).json({ accessToken, refreshToken });
+        }
+        // refreshTokens.push(refreshToken);
+        //Step 5 : Sending refresh and access token to client.
+      } else {
+        res.status(401).json({ message: "The passwords do not match." });
+      }
+    } catch (err) {
+      console.log(err);
+      res
+        .status(500)
+        .json({ message: "Error occured while verifying tokens." });
+    }
+  }
+});
+
+// RENEWS THE ACCESS TOKENS BASED ON THE REFRESH TOKEN
+//=======================================================
+router.post("/refresh-token", async (req, res) => {
+  const refreshToken = req.body.refreshToken;
+  //   Trap 1 : Checks if the refresh token is a bluff/empty.
+  if (refreshToken == null) {
+    return res.status(401).json({ message: "No refresh token received." });
+  }
+  // Trap 2 : Compares the refresh tokens
+
+  let refreshTokens = await RefreshToken.findOne({ name: "tokens" });
+  if (!refreshTokens.data.includes(refreshToken)) {
+    return res
+      .status(403)
+      .json({ message: "Refresh token has not been found." });
+  }
+  // We need to delete the previous refresh token for security reasons.
+  //   Trap 3 : Regenerates our short term access token (Its all about verifying payload and extracting info
+  // again to be used in the regeneration of the access token.)
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, payload) => {
+    if (err) {
+      return res.status(403).json({
+        message:
+          "We have your refresh token but somehow we are encountering some issues.",
+      });
+    } else {
+      const { firstName, lastName, role } = payload;
+      const userData = { firstName, lastName, role };
+      const accessToken = generateAccessToken(userData);
+      const refreshToken = generateRefreshToken(userData);
+      res.status(201).json({ accessToken, refreshToken });
+    }
+  });
+});
+
 // DELETES THE REFRESH TOKENS IN OUR DATABASE.
 //=============================================
-router.delete("/logout", (req, res) => {
-  if (!refreshTokens.includes(req.body.token)) {
-    return res.sendStatus(403).send("Huwezi nicheza huskii...");
+router.delete("/logout", async (req, res) => {
+  let refreshTokens = await RefreshToken.findOne({ name: "tokens" });
+
+  if (!refreshTokens.data.includes(req.body.token)) {
+    return res
+      .status(403)
+      .json({ message: "Refresh token not found for deletion." });
+  } else {
+    refreshTokens = refreshTokens.data.filter(
+      (token) => token !== req.body.token
+    );
+    refreshTokens.save();
+    res.status(204).json({ message: "Refresh token deleted successfully." });
   }
-  refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
-  res.sendStatus(204).send("All clear");
 });
 
 module.exports = router;
