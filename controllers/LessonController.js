@@ -37,9 +37,7 @@ const createLesson = async (req, res) => {
       let errorBody = { message: "This lesson already exists!" };
       res.status(400).json(errorBody);
     } else {
-      let { _message, name } = err;
-      let errorBody = { _message, name };
-      res.status(400).json(errorBody);
+      res.status(400).json(err);
     }
   }
 };
