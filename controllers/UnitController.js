@@ -3,6 +3,14 @@
 const Unit = require("../models/UnitModel");
 const Course = require("../models/CourseModel");
 
+const getAllUnits = async (req, res) => {
+  try {
+    const unitsData = await Unit.find({});
+    res.status(201).json(unitsData);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
 // Perfect Illustration of One to many relationship.
 const createUnit = async (req, res) => {
   try {
@@ -43,4 +51,4 @@ const createUnit = async (req, res) => {
   }
 };
 
-module.exports = { createUnit };
+module.exports = { createUnit, getAllUnits };

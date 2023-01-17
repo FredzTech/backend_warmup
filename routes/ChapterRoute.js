@@ -8,10 +8,10 @@ const {
 // CRUD OPERATIONS
 //=================
 // CREATING A DOCUMENT.
-router.post("/newChapter", createChapter);
+router.post("/new-chapter", createChapter);
 
 // READING THE DOCUMENT
 //======================
-router.get("/allChapters", findAllChapters);
+router.get("/all-chapters", findAllChapters);
 // EXPORTING A MODEL.
 module.exports = router;
