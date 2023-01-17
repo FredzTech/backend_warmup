@@ -20,20 +20,38 @@ const upload = multer({ dest: "uploads/" }); //This is our shot for filtering ou
 // CRUD OPERATIONS
 //=================
 // CREATING A DOCUMENT.
-router.post("/upload-courses", upload.single("Course"), async (req, res) => {
-  const file = req.file;
-  const result = await uploadFile(file);
-  await unlinkFile(file.path);
-  console.log(result);
-  console.log(`Additional info for save 
-  =======================`);
-  console.log(`${JSON.stringify(req.body)}`);
-  // OBJECT TO RETURNED AFTER SAVE.WE LET THE DB TAKE OVER.
+router.post(
+  "/new-course",
+  (req, res, next) => {
+    console.log("Request received");
+    next();
+  },
+  upload.single("course"),
+  async (req, res, next) => {
+    const file = req.file;
+    const result = await uploadFile(file);
+    await unlinkFile(file.path);
+    req.results = result;
+    next();
+  },
+  createCourse
+);
 
-  res.send({ imagePath: `/images/${result.Key}` });
-});
-
-router.post("/newChapter", createCourse);
+// router.post(
+//   "/new-course",
+//   async (req, res) => {
+//     try {
+//       console.log(`New Course Request. ${JSON.stringify(req.body)}`);
+//       let { CourseImage, CourseTitle } = req.body;
+//       let CourseData = { CourseImage, CourseTitle };
+//       let NewCourse = await Course.create(CourseData);
+//       NewCourse.save();
+//     } catch (err) {
+//       res.status(500).json(err);
+//     }
+//   },
+//   createCourse
+// );
 
 // READING THE DOCUMENT
 //======================
