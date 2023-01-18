@@ -21,7 +21,14 @@ router.post("/new-course", upload.single("course"), fileCleanup, createCourse);
 
 // READING THE DOCUMENT
 //======================
-router.get("/all-courses", findAllCourses);
+router.get(
+  "/all-courses",
+  (req, res, next) => {
+    console.log("Request received");
+    next();
+  },
+  findAllCourses
+);
 // EXPORTING A MODEL.
 
 module.exports = router;
