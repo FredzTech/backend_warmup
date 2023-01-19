@@ -11,6 +11,7 @@ const TutorSchema = new Schema(
     password: { type: String, required: true },
     contact: { type: String, required: true },
     paid: { type: Boolean, required: true, default: false },
+    units: [{ type: mongoose.Schema.Types.ObjectId, ref: "Unit" }],
     role: {
       type: String,
       required: true,

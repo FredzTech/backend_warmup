@@ -22,18 +22,25 @@ router.post(
   "/new-lesson",
   upload.single("video"),
   async (req, res, next) => {
-    const file = req.file;
-    const result = await uploadFile(file);
-    await unlinkFile(file.path);
-    console.log(result);
-    req.result = result;
-    console.log(`Additional info for save 
-  =======================`);
-    console.log(`${JSON.stringify(req.body)}`);
-    // OBJECT TO RETURNED AFTER SAVE.
+    try {
+      console.log("Finished upload to server.");
+      const file = req.file;
+      const result = await uploadFile(file);
+      console.log("Finished upload to bucket");
+      await unlinkFile(file.path);
+      console.log(result);
+      req.result = result;
+      console.log(`Additional info for save 
+    =======================`);
+      console.log(`${JSON.stringify(req.body)}`);
+      // OBJECT TO RETURNED AFTER SAVE.
 
-    // res.send({ imagePath: `/images/${result.Key}` });
-    next();
+      // res.send({ imagePath: `/images/${result.Key}` });
+      next();
+    } catch (err) {
+      console.log("Error that occured instead of crashing!");
+      console.log(JSON.stringify(err));
+    }
   },
   createLesson
 );
