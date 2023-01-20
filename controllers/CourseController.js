@@ -17,6 +17,7 @@ const fileCleanup = async (req, res, next) => {
 };
 const createCourse = async (req, res) => {
   try {
+    console.log("Upload success. Saving to database!");
     let { courseTitle } = req.body;
     let { Location: courseImage } = req.results;
     let courseData = { courseTitle, courseImage };

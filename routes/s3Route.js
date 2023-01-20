@@ -2,10 +2,11 @@
 //================
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+// EXPRESS SERVER FILE SYSTEM.
 const fs = require("fs"); //Enables us to interact with the servers fs performing crud ops to it.
 const util = require("util"); //Kinda revolutionalizes fs methods to promises which become sweeter to handle.s
 const unlinkFile = util.promisify(fs.unlink); //Nispy method for deleting files.
-const multer = require("multer");
 
 // CONTROLLERS IMPORTATIONS.
 //===========================

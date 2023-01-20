@@ -14,10 +14,20 @@ const {
 //====================
 const upload = multer({ dest: "uploads/" }); //This is our shot for filtering our uploads.
 
+const debugReq = (req, res, next) => {
+  console.log("Request acknowledged.Commencing Upload.");
+  next();
+};
 // CRUD OPERATIONS
 //=================
 // CREATING A DOCUMENT.
-router.post("/new-course", upload.single("course"), fileCleanup, createCourse);
+router.post(
+  "/new-course",
+  debugReq,
+  upload.single("course"),
+  fileCleanup,
+  createCourse
+);
 
 // READING THE DOCUMENT
 //======================
