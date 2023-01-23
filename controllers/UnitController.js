@@ -14,6 +14,7 @@ const getAllUnits = async (req, res) => {
 // Perfect Illustration of One to many relationship.
 const createUnit = async (req, res) => {
   try {
+    console.log(req.body);
     let { courseTitle, unitCode, unitName, unitDescription } = req.body;
     let unitData = {
       unitCode,
@@ -35,7 +36,7 @@ const createUnit = async (req, res) => {
       );
       if (courseData._doc.units.includes(unitID)) {
         // We can safely say that the unit has been created.
-        res.status(201);
+        res.status(201).send({ message: "Unit Registration successfull." });
       }
     }
   } catch (err) {
@@ -44,6 +45,7 @@ const createUnit = async (req, res) => {
       let errorBody = { message: "This unit already exists!" };
       res.status(400).json(errorBody);
     } else {
+      console.log(err);
       let { _message, name } = err;
       let errorBody = { _message, name };
       res.status(400).json(errorBody);

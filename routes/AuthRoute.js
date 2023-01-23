@@ -47,19 +47,31 @@ router.get("/posts", authenticateToken, (req, res) => {
 //========================================
 router.post("/register-student", async (req, res) => {
   try {
+    console.log(req.body);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     let credentials = {
       firstName: req.body.firstName,
-      lastName: req.body.lastName,
+      surname: req.body.surname,
       email: req.body.email,
+      contact: req.body.contact,
       password: hashedPassword,
-      role: "student",
     };
     const student = await Student.create(credentials);
     student.save();
-    res.status(201);
-  } catch (error) {
-    res.status(400).json({ message: error });
+    res
+      .status(201)
+      .json({ message: "Student has been registered successfully." });
+  } catch (err) {
+    if (err.code == 11000) {
+      console.log(JSON.stringify(err));
+      let errorBody = { message: "This student already exists!" };
+      res.status(400).json(errorBody);
+    } else {
+      console.log(err);
+      let { _message, name } = err;
+      let errorBody = { _message, name };
+      res.status(400).json(errorBody);
+    }
   }
 });
 

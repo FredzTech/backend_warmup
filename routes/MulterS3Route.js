@@ -4,6 +4,7 @@ const multer = require("multer");
 const aws = require("aws-sdk");
 const multerS3 = require("multer-s3");
 require("dotenv/config");
+const { createCourseS3 } = require("../controllers/CourseController");
 
 // CONFIGURING DETAILS.
 //======================
@@ -47,7 +48,9 @@ router.post(
     console.log("Req has finished executing.");
     console.log(req.file);
     console.log("We can now proceed to save this data inside our database.");
-  }
+    next();
+  },
+  createCourseS3
 );
 
 module.exports = router;
