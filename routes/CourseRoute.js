@@ -65,6 +65,10 @@ const upload = multer({
 //   fileCleanup,
 //   createCourse
 // );
+
+router.get("/", (req, res) => {
+  console.log("Welcome to course page.");
+});
 router.post(
   "/new-course",
   debugReq,
@@ -83,7 +87,7 @@ router.post(
 router.get(
   "/all-courses",
   (req, res, next) => {
-    console.log("Request received");
+    console.log("Request for courses received");
     next();
   },
   findAllCourses
