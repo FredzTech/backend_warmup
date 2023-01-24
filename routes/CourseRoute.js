@@ -12,6 +12,7 @@ const {
   findAllCourses,
   fileCleanup,
   createCourseS3,
+  findCourse,
 } = require("../controllers/CourseController");
 
 // CONFIGURING MULTER.
@@ -86,6 +87,16 @@ router.get(
     next();
   },
   findAllCourses
+);
+
+router.get(
+  "/:courseId",
+  (req, res, next) => {
+    console.log("Request received");
+    console.log(req.params);
+    next();
+  },
+  findCourse
 );
 // EXPORTING A MODEL.
 

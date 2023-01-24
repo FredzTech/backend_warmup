@@ -71,4 +71,22 @@ const findAllCourses = async (req, res) => {
     res.status(500).send(error);
   }
 };
-module.exports = { createCourse, createCourseS3, findAllCourses, fileCleanup };
+const findCourse = async (req, res) => {
+  // All the data will already be appended by the units.
+  const { courseId } = req.params;
+  try {
+    let data = await Course.findById(courseId).populate("units"); //Find everything for me.
+    console.log("Requested course data");
+    console.log(data);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+module.exports = {
+  createCourse,
+  createCourseS3,
+  findAllCourses,
+  fileCleanup,
+  findCourse,
+};

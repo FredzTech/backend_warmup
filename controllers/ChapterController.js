@@ -57,4 +57,4 @@ const populateAllChapters = async (req, res) => {
     res.status(500).send(error);
   }
 };
-module.exports = { createChapter, findAllChapters };
+module.exports = { createChapter, findAllChapters,populateAllChapters };
