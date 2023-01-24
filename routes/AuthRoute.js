@@ -77,11 +77,13 @@ router.post("/register-student", async (req, res) => {
 
 router.post("/register-tutor", async (req, res) => {
   try {
+    console.log(req.body);
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     let credentials = {
       firstName: req.body.firstName,
-      surname: req.body.surName,
+      surname: req.body.surname,
       email: req.body.email,
+      contact: req.body.contact,
       password: hashedPassword,
       role: "tutor",
     };
