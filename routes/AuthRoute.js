@@ -42,7 +42,25 @@ router.get("/posts", authenticateToken, (req, res) => {
   console.log(`Payload to be utilized ${req.user}`);
   res.json(posts.filter((post) => post.username === req.user.name));
 });
+router.get("/all-students", async (req, res) => {
+  try {
+    const studentData = await Student.find({});
+    res.status(200).json(studentData);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(err);
+  }
+});
 
+router.get("/all-tutors", async (req, res) => {
+  try {
+    const tutorData = await Tutor.find({});
+    res.status(200).json(tutorData);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json(err);
+  }
+});
 // GENERATES THE REFRESH & ACCESS TOKENS
 //========================================
 router.post("/register-student", async (req, res) => {
@@ -231,6 +249,23 @@ router.delete("/logout", async (req, res) => {
     );
     refreshTokens.save();
     res.status(204).json({ message: "Refresh token deleted successfully." });
+  }
+});
+
+router.delete("/tutor", async (req, res) => {
+  try {
+    await Tutor.findByIdAndDelete(req.body._id, function (err, docs) {
+      if (!err) {
+        console.log(docs);
+        res.status(200).json(docs);
+      } else {
+        console.log(err);
+        res.status(400).send(err);
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    // res.status(400).json(err);
   }
 });
 

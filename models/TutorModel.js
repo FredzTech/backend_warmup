@@ -10,7 +10,7 @@ const TutorSchema = new Schema(
     email: { type: String, required: true },
     password: { type: String, required: true },
     contact: { type: String, required: true },
-    paid: { type: Boolean, required: true, default: false },
+    status: { type: String, required: true, default: "active" },
     units: [{ type: mongoose.Schema.Types.ObjectId, ref: "Unit" }],
     role: {
       type: String,
