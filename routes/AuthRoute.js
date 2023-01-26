@@ -205,15 +205,13 @@ router.post("/refresh-token", async (req, res) => {
   const refreshToken = req.body.refreshToken;
   //   Trap 1 : Checks if the refresh token is a bluff/empty.
   if (refreshToken == null) {
-    return res.status(401).json({ message: "No refresh token received." });
+    return res.sendStatus(401);
   }
   // Trap 2 : Compares the refresh tokens
 
   let refreshTokens = await RefreshToken.findOne({ name: "tokens" });
   if (!refreshTokens.data.includes(refreshToken)) {
-    return res
-      .status(403)
-      .json({ message: "Refresh token has not been found." });
+    return res.sendStatus(403);
   }
   // We need to delete the previous refresh token for security reasons.
   //   Trap 3 : Regenerates our short term access token (Its all about verifying payload and extracting info
@@ -228,8 +226,7 @@ router.post("/refresh-token", async (req, res) => {
       const { firstName, lastName, role } = payload;
       const userData = { firstName, lastName, role };
       const accessToken = generateAccessToken(userData);
-      const refreshToken = generateRefreshToken(userData);
-      res.status(201).json({ accessToken, refreshToken });
+      res.json({ accessToken, refreshToken });
     }
   });
 });
@@ -248,7 +245,7 @@ router.delete("/logout", async (req, res) => {
       (token) => token !== req.body.token
     );
     refreshTokens.save();
-    res.status(204).json({ message: "Refresh token deleted successfully." });
+    res.sendStatus(204);
   }
 });
 
