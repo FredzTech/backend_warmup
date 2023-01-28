@@ -7,7 +7,7 @@ const StudentSchema = new Schema(
   {
     firstName: { type: String, required: true },
     surname: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     contact: { type: String, required: true },
     status: { type: String, required: true, default: "free" }, //Account status is free until payment is approved.

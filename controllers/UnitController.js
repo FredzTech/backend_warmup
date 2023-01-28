@@ -3,6 +3,19 @@
 const Unit = require("../models/UnitModel");
 const Course = require("../models/CourseModel");
 
+const getUnit = async (req, res) => {
+  const { unitId } = req.params;
+
+  try {
+    let data = await Unit.findById(unitId).populate("unitChapters");
+    console.log("Requested unit data");
+    console.log(data);
+    res.json(data);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
 const getAllUnits = async (req, res) => {
   try {
     const unitsData = await Unit.find({});
@@ -30,9 +43,10 @@ const createUnit = async (req, res) => {
       res.status(400).json({ message: "Course not found" });
     } else {
       let courseData = await Course.findByIdAndUpdate(
+        //Returns / saves the new document in play.
         courseID,
-        { $push: { units: unitID } },
-        { new: true, useFindAndModify: false, runValidation: true }
+        { $push: { units: unitID } }, //Adding to an array of elements.
+        { new: true, useFindAndModify: false, runValidation: true } //Addition params for update validation.
       );
       if (courseData._doc.units.includes(unitID)) {
         // We can safely say that the unit has been created.
@@ -53,4 +67,4 @@ const createUnit = async (req, res) => {
   }
 };
 
-module.exports = { createUnit, getAllUnits };
+module.exports = { createUnit, getAllUnits, getUnit };

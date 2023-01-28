@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 // Creates a model for saving customer credentials to the database.
 //==================================================================
-const TutorSchema = new Schema(
+const AdminSchema = new Schema(
   {
     firstName: { type: String, required: true },
     surname: { type: String, required: true },
@@ -23,6 +23,6 @@ const TutorSchema = new Schema(
   }
 );
 
-const Tutor = mongoose.model("Tutor", TutorSchema);
+const Admin = mongoose.model("Admin", AdminSchema);
 
-module.exports = Tutor;
+module.exports = Admin;

@@ -48,7 +48,7 @@ const findAllChapters = async (req, res) => {
   }
 };
 
-const populateAllChapters = async (req, res) => {
+const populateChapterLessons = async (req, res) => {
   try {
     let data = await Chapter.find({}).populate("ChapterLessons");
     console.log(data);
@@ -57,4 +57,22 @@ const populateAllChapters = async (req, res) => {
     res.status(500).send(error);
   }
 };
-module.exports = { createChapter, findAllChapters,populateAllChapters };
+
+const findChapter = async (req, res) => {
+  const { chapterId } = req.params;
+  try {
+    let data = await Chapter.findById(chapterId).populate("chapterLessons");
+    console.log("Requested Chapter Data");
+    console.log(data);
+    res.json(data);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+module.exports = {
+  createChapter,
+  findChapter,
+  findAllChapters,
+  populateChapterLessons,
+};

@@ -5,7 +5,8 @@ const { Schema } = mongoose;
 const LessonSchema = new Schema({
   lessonNumber: { type: Number, required: true, unique: true },
   lessonName: { type: String, required: true, uppercase: true },
-  lessonVideo: { type: String, required: true },
+  lessonType: { type: String, required: true },
+  lessonUrl: { type: String, required: true },
   lessonNotes: { type: String, required: true },
 });
 
