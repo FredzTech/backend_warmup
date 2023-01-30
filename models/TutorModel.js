@@ -5,8 +5,8 @@ const { Schema } = mongoose;
 //==================================================================
 const TutorSchema = new Schema(
   {
-    firstName: { type: String, required: true },
-    surname: { type: String, required: true },
+    firstName: { type: String, required: true, uppercase: true },
+    surname: { type: String, required: true, uppercase: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     contact: { type: String, required: true },
@@ -15,6 +15,7 @@ const TutorSchema = new Schema(
     role: {
       type: String,
       required: true,
+      uppercase: true,
       default: "tutor",
     },
   },

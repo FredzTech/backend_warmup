@@ -18,34 +18,12 @@ const Tutor = require("../models/TutorModel");
 const Admin = require("../models/AdminModel");
 const RefreshToken = require("../models/RefreshTokensModel");
 
-// DUMMY CONTENT TO BE CONSUMED.
-//===============================
-const posts = [
-  {
-    username: "Kyle",
-    title: "Post 1",
-  },
-  {
-    username: "Benson",
-    role: [0535, 0534],
-    title: "Hello this is my info as Benson.",
-  },
-  {
-    username: "Alfred",
-    title: "Post 2",
-  },
-  {
-    username: "Joan",
-    title: "Post 3",
-  },
-];
-
 // CONSUMING CONTENT.
 //===================
-// jwt.verify() sole mission is to destructure our access token.
+// jwt.verify() sole mission is to destructure our access token or send us an error.
 router.get("/posts", authenticateToken, (req, res) => {
   console.log(`Payload to be utilized ${JSON.stringify(req.user)}`);
-  res.json(posts.filter((post) => post.username === req.user.name));
+  res.json(posts.filter((post) => post.username === req.user.name)); // Use example.
 });
 
 router.get("/all-students", async (req, res) => {
@@ -222,10 +200,10 @@ router.post("/login", async (req, res) => {
   let studentData = await Student.findOne({ firstName: req.body.FirstName });
   console.log("Not a student.");
   if (studentData !== null) {
-    const { firstName, lastName, role, password } = studentData;
+    const { firstName, surname, role, password } = studentData;
     try {
       if (await bcrypt.compare(req.body.password, password)) {
-        const user = { firstName, lastName, role }; //Our payload.
+        const user = { firstName, surname, role }; //Our payload.
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
         let { _id: tokenID } = await RefreshToken.findOne({ name: "tokens" });
@@ -235,7 +213,9 @@ router.post("/login", async (req, res) => {
           { new: true, useFindAndModify: false, runValidation: true }
         );
         if (refreshTokenData._doc.data.includes(refreshToken)) {
-          res.status(201).json({ accessToken, refreshToken });
+          res
+            .status(201)
+            .json({ accessToken, refreshToken, role: [user.role] });
         }
       } else {
         res
@@ -248,7 +228,7 @@ router.post("/login", async (req, res) => {
         .status(500)
         .json({ message: "Error occured while verifying students tokens" });
     }
-  } else if (studentData == null) {
+  } else if (studentData === null) {
     // We look for whether he/ she is a tutor.
     let tutorData = await Tutor.findOne({ firstName: req.body.firstName });
     if (tutorData !== null) {
@@ -274,7 +254,7 @@ router.post("/login", async (req, res) => {
           if (refreshTokenData._doc.data.includes(refreshToken)) {
             res
               .status(201)
-              .json({ accessToken, refreshToken, role: user.role });
+              .json({ accessToken, refreshToken, role: [user.role] });
           }
         } else {
           res
@@ -308,7 +288,9 @@ router.post("/login", async (req, res) => {
               { new: true, useFindAndModify: false, runValidation: true }
             );
             if (refreshTokenData._doc.data.includes(refreshToken)) {
-              res.status(201).json({ accessToken, refreshToken });
+              res
+                .status(201)
+                .json({ accessToken, refreshToken, role: [user.role] });
             }
             //Step 5 : Sending refresh and access token to client.
           } else {
@@ -322,136 +304,10 @@ router.post("/login", async (req, res) => {
             .status(500)
             .json({ message: "Error occured while verifying tokens admin" });
         }
-      }
-    }
-  }
-});
-
-// GENERATES THE REFRESH & ACCESS TOKENS
-//========================================
-router.post("/student-login", async (req, res) => {
-  // Retrieving user credentials from our database.
-  let studentData = await Student.findOne({ firstName: req.body.FirstName });
-  console.log("Student Found :-");
-  console.log(studentData);
-  if (studentData == null) {
-    res.status(401).json({ message: "User not found" });
-  } else {
-    const { firstName, lastName, role, password } = studentData;
-    // Step 2 : Comparing passwords using bcrypt compare function.
-    try {
-      if (await bcrypt.compare(req.body.password, password)) {
-        // Step 2 : Generating User Payload, if the user is valid.
-        const user = { firstName, lastName, role }; //Our payload.
-        // Step 3 : Generating the access & refresh tokens
-        const accessToken = generateAccessToken(user);
-        const refreshToken = generateRefreshToken(user);
-        //Step 4 : Saving a copy of the refresh token to our database.
-        let { _id: tokenID } = await RefreshToken.findOne({ name: "tokens" }); //Taking the ID of C Lesson
-        let refreshTokenData = await RefreshToken.findByIdAndUpdate(
-          tokenID,
-          { $push: { data: refreshToken } },
-          { new: true, useFindAndModify: false, runValidation: true }
-        );
-        if (refreshTokenData._doc.data.includes(refreshToken)) {
-          res.status(201).json({ accessToken, refreshToken });
-        }
-        // refreshTokens.push(refreshToken);
-        //Step 5 : Sending refresh and access token to client.
       } else {
-        res.status(401).json({ message: "The passwords do not match." });
+        console.log("Bad request response sent.");
+        res.sendStatus(400);
       }
-    } catch (err) {
-      console.log(err);
-      res
-        .status(500)
-        .json({ message: "Error occured while verifying tokens." });
-    }
-  }
-});
-
-// GENERATES THE REFRESH & ACCESS TOKENS FOR TUTOR
-//=================================================
-router.post("/tutor-login", async (req, res) => {
-  // Retrieving user credentials from our database.
-  let tutorData = await Tutor.findOne({ firstName: req.body.FirstName });
-  console.log("Tutor Found :-");
-  console.log(tutorData);
-  if (tutorData == null) {
-    res.status(401).json({ message: "User not found" });
-  } else {
-    const { firstName, lastName, role, password } = tutorData;
-    // Step 2 : Comparing passwords using bcrypt compare function.
-    try {
-      if (await bcrypt.compare(req.body.password, password)) {
-        // Step 2 : Generating User Payload, if the user is valid.
-        const user = { firstName, lastName, role }; //Our payload.
-        // Step 3 : Generating the access & refresh tokens
-        const accessToken = generateAccessToken(user);
-        const refreshToken = generateRefreshToken(user);
-        //Step 4 : Saving a copy of the refresh token to our database.
-        let { _id: tokenID } = await RefreshToken.findOne({ name: "tokens" }); //Taking the ID of C Lesson
-        let refreshTokenData = await RefreshToken.findByIdAndUpdate(
-          tokenID,
-          { $push: { data: refreshToken } },
-          { new: true, useFindAndModify: false, runValidation: true }
-        );
-        if (refreshTokenData._doc.data.includes(refreshToken)) {
-          res.status(201).json({ accessToken, refreshToken });
-        }
-        // refreshTokens.push(refreshToken);
-        //Step 5 : Sending refresh and access token to client.
-      } else {
-        res.status(401).json({ message: "The passwords do not match." });
-      }
-    } catch (err) {
-      console.log(err);
-      res
-        .status(500)
-        .json({ message: "Error occured while verifying tokens." });
-    }
-  }
-});
-
-// GENERATES THE REFRESH & ACCESS TOKENS FOR TUTOR
-//=================================================
-router.post("/admin-login", async (req, res) => {
-  // Retrieving user credentials from our database.
-  let adminData = await Admin.findOne({ firstName: req.body.FirstName });
-  console.log("Tutor Found :-");
-  console.log(adminData);
-  if (adminData == null) {
-    res.status(401).json({ message: "User not found" });
-  } else {
-    const { firstName, lastName, role, password } = adminData;
-    // Step 2 : Comparing passwords using bcrypt compare function.
-    try {
-      if (await bcrypt.compare(req.body.password, password)) {
-        // Step 2 : Generating User Payload, if the user is valid.
-        const user = { firstName, lastName, role }; //Our payload.
-        // Step 3 : Generating the access & refresh tokens
-        const accessToken = generateAccessToken(user);
-        const refreshToken = generateRefreshToken(user);
-        //Step 4 : Saving a copy of the refresh token to our database.
-        let { _id: tokenID } = await RefreshToken.findOne({ name: "tokens" }); //Taking the ID of C Lesson
-        let refreshTokenData = await RefreshToken.findByIdAndUpdate(
-          tokenID,
-          { $push: { data: refreshToken } },
-          { new: true, useFindAndModify: false, runValidation: true }
-        );
-        if (refreshTokenData._doc.data.includes(refreshToken)) {
-          res.status(201).json({ accessToken, refreshToken });
-        }
-        // refreshTokens.push(refreshToken);
-        //Step 5 : Sending refresh and access token to client.
-      } else {
-        res.status(401).json({ message: "The passwords do not match." });
-      }
-    } catch (err) {
-      console.log(err);
-      res
-        .status(500)
-        .json({ message: "Error occured while verifying tokens." });
     }
   }
 });

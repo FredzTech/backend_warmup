@@ -1,6 +1,8 @@
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
+const jwt = require("jsonwebtoken");
+
 const express = require("express");
 const port = process.env.PORT || 4000;
 const mongoose = require("mongoose");
