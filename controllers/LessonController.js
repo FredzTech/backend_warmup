@@ -29,7 +29,7 @@ const createLesson = async (req, res) => {
     );
     if (chapterData._doc.chapterLessons.includes(lessonID)) {
       console.log("Lesson Data operation successfull.");
-      res.status(201);
+      res.sendStatus(201);
     }
   } catch (err) {
     if (err.code == 11000) {
@@ -47,22 +47,22 @@ const createLessonS3 = async (req, res) => {
     const { location } = req.file;
     console.log(`New Lesson Request. ${JSON.stringify(req.body)}`);
     // let { chapterName, lessonNumber, lessonName, lessonNotes } = req.body;
-    let { chapterName, lessonNumber, lessonName } = req.body;
-    const lessonNotes =
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. In quaerat error ratione sed eaque ducimus ex officiis, perferendis amet. Labore sed illo maxime magnam necessitatibus doloremque nulla dicta similique inventore.";
-
+    let { chapterID, lessonNumber, lessonName, lessonNotes, lessonType } =
+      req.body;
+    // const lessonNotes =
+    //   "Lorem ipsum dolor sit amet consectetur adipisicing elit. In quaerat error ratione sed eaque ducimus ex officiis, perferendis amet. Labore sed illo maxime magnam necessitatibus doloremque nulla dicta similique inventore.";
+    console.log(`LessonNotes : ${lessonNotes}`);
     let lessonData = {
       lessonNumber,
       lessonName,
       lessonNotes,
-      lessonVideo: location,
+      lessonType,
+      lessonUrl: location,
     };
-    console.log(`Data to be saved`);
-    console.log(lessonData);
+    console.log(`Lesson Data to be saved : ${lessonData}`);
     let newLesson = await Lesson.create(lessonData);
     newLesson.save();
     let { _id: lessonID } = newLesson; // Extracting ID from staved Lesson
-    let { _id: chapterID } = await Chapter.findOne({ chapterName }); //Taking the ID of C Lesson
     let chapterData = await Chapter.findByIdAndUpdate(
       chapterID,
       { $push: { chapterLessons: lessonID } },
@@ -70,7 +70,7 @@ const createLessonS3 = async (req, res) => {
     );
     if (chapterData._doc.chapterLessons.includes(lessonID)) {
       console.log("Lesson Data operation successfull.");
-      res.status(201);
+      res.sendStatus(201);
     }
   } catch (err) {
     if (err.code == 11000) {

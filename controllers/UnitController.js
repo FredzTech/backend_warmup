@@ -7,7 +7,36 @@ const getUnit = async (req, res) => {
   const { unitId } = req.params;
 
   try {
+    let data = await Unit.findById(unitId);
+    console.log("Requested unit data");
+    console.log(data);
+    res.json(data);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+const getUnitWithChapters = async (req, res) => {
+  const { unitId } = req.params;
+
+  try {
     let data = await Unit.findById(unitId).populate("unitChapters");
+    console.log("Requested unit data");
+    console.log(data);
+    res.json(data);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+const getUnitWithLessons = async (req, res) => {
+  const { unitId } = req.params;
+
+  try {
+    let data = await Unit.findById(unitId).populate({
+      path: "unitChapters",
+      // Populating the lessons array for every chapter.
+      populate: { path: "chapterLessons" },
+    });
     console.log("Requested unit data");
     console.log(data);
     res.json(data);
@@ -67,4 +96,10 @@ const createUnit = async (req, res) => {
   }
 };
 
-module.exports = { createUnit, getAllUnits, getUnit };
+module.exports = {
+  createUnit,
+  getAllUnits,
+  getUnit,
+  getUnitWithChapters,
+  getUnitWithLessons,
+};

@@ -4,8 +4,10 @@ const router = express.Router();
 //===========================
 const {
   createUnit,
-  getUnit,
   getAllUnits,
+  getUnit,
+  getUnitWithChapters,
+  getUnitWithLessons,
 } = require("../controllers/UnitController");
 
 // CRUD OPERATIONS
@@ -14,7 +16,7 @@ const {
 // When creating a lesson, we would like to save the lesson id to its respective chapter.
 router.post("/new-unit", createUnit);
 
-router.get("/:unitId", getUnit);
+router.get("/:unitId", getUnitWithLessons);
 
 router.get("/all-units", getAllUnits);
 

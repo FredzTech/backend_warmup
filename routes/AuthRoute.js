@@ -148,7 +148,7 @@ router.post("/register-tutor", async (req, res) => {
     };
     const tutor = await Tutor.create(credentials);
     tutor.save();
-    res.status(201);
+    res.sendStatus(201);
   } catch (error) {
     if (err.code == 11000) {
       console.log(JSON.stringify(err));
@@ -177,12 +177,10 @@ router.post("/register-admin", async (req, res) => {
     };
     const tutor = await Admin.create(credentials);
     tutor.save();
-    res.status(201);
-  } catch (error) {
+    res.sendStatus(201);
+  } catch (err) {
     if (err.code == 11000) {
-      console.log(JSON.stringify(err));
-      let errorBody = { message: "This student already exists!" };
-      res.status(400).json(errorBody);
+      res.sendStatus(409);
     } else {
       console.log(err);
       let { _message, name } = err;
@@ -197,8 +195,8 @@ router.post("/register-admin", async (req, res) => {
 router.post("/login", async (req, res) => {
   // Retrieving user credentials from our database and redirecting accordingly according to role received.
   console.log(req.body);
-  let studentData = await Student.findOne({ firstName: req.body.FirstName });
-  console.log("Not a student.");
+  let studentData = await Student.findOne({ firstName: req.body.firstName });
+  console.log(studentData);
   if (studentData !== null) {
     const { firstName, surname, role, password } = studentData;
     try {
@@ -229,6 +227,8 @@ router.post("/login", async (req, res) => {
         .json({ message: "Error occured while verifying students tokens" });
     }
   } else if (studentData === null) {
+    console.log("Not a student.");
+
     // We look for whether he/ she is a tutor.
     let tutorData = await Tutor.findOne({ firstName: req.body.firstName });
     if (tutorData !== null) {
@@ -268,7 +268,7 @@ router.post("/login", async (req, res) => {
           .json({ message: "Error occured while verifying tokens tutor" });
       }
     } else if (tutorData == null) {
-      console.log("Maybe an admin");
+      console.log("Admin verification");
       let adminData = await Admin.findOne({ firstName: req.body.firstName });
       console.log(adminData);
       if (adminData !== null) {

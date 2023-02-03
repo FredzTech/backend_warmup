@@ -1,13 +1,12 @@
 const mongoose = require("mongoose");
-
 const { Schema } = mongoose;
 
 const LessonSchema = new Schema({
-  lessonNumber: { type: Number, required: true, unique: true },
+  lessonNumber: { type: String, required: true },
   lessonName: { type: String, required: true, uppercase: true },
+  lessonNotes: { type: String },
   lessonType: { type: String, required: true },
   lessonUrl: { type: String, required: true },
-  lessonNotes: { type: String, required: true },
 });
 
 // Creating a model.

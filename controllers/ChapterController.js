@@ -5,7 +5,7 @@ const Unit = require("../models/UnitModel");
 const createChapter = async (req, res) => {
   try {
     console.log(`New Request. ${JSON.stringify(req.body)}`);
-    let { unitName, chapterNumber, chapterName, chapterDescription } = req.body;
+    let { unitID, chapterNumber, chapterName, chapterDescription } = req.body;
     let chapterData = {
       chapterNumber,
       chapterName,
@@ -14,16 +14,14 @@ const createChapter = async (req, res) => {
     let newChapter = await Chapter.create(chapterData);
     newChapter.save();
     let { _id: chapterID } = newChapter;
-    let { _id: unitID } = await Unit.findOne({ unitName });
-    console.log(unitID);
-    if (unitID !== null || unitID !== undefined) {
+    if (unitID !== null && unitID !== undefined) {
       let unitData = await Unit.findByIdAndUpdate(
         unitID,
         { $push: { unitChapters: chapterID } },
         { new: true, useFindAndModify: false, runValidation: true }
       );
       if (unitData._doc.unitChapters.includes(chapterID)) {
-        res.status(201);
+        res.sendStatus(201);
       } else {
         res
           .status(500)

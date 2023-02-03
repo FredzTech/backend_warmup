@@ -23,7 +23,7 @@ const createCourseS3 = async (req, res) => {
     let courseData = { courseTitle, courseImage };
     let newCourse = await Course.create(courseData);
     newCourse.save();
-    res.status(201).json({ message: "Course has been created successfully." });
+    res.sendStatus(201);
   } catch (err) {
     // DESTRUCTURING MONGODB ATLAS ERROR.
     if (err.code == 11000) {
@@ -46,7 +46,7 @@ const createCourse = async (req, res) => {
     let courseData = { courseTitle, courseImage };
     let newCourse = await Course.create(courseData);
     newCourse.save();
-    res.status(201);
+    res.sendStatus(201);
   } catch (err) {
     // DESTRUCTURING MONGODB ATLAS ERROR.
     if (err.code == 11000) {
@@ -65,7 +65,6 @@ const findAllCourses = async (req, res) => {
   // All the data will already be appended by the units.
   try {
     let data = await Course.find({}); //Find everything for me.
-    console.log(data);
     res.status(200).json(data);
   } catch (error) {
     res.status(500).send(error);
