@@ -86,10 +86,7 @@ router.post(
 //======================
 router.get(
   "/all-courses",
-  (req, res, next) => {
-    console.log("Request for courses received");
-    next();
-  },
+
   findAllCourses
 );
 

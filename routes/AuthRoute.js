@@ -211,9 +211,12 @@ router.post("/login", async (req, res) => {
           { new: true, useFindAndModify: false, runValidation: true }
         );
         if (refreshTokenData._doc.data.includes(refreshToken)) {
-          res
-            .status(201)
-            .json({ accessToken, refreshToken, role: [user.role] });
+          res.status(200).json({
+            accessToken,
+            refreshToken,
+            user: { firstName: user.firstName, surname: user.surname },
+            roles: [user.role, "GENERAL"],
+          });
         }
       } else {
         res
@@ -252,9 +255,12 @@ router.post("/login", async (req, res) => {
             { new: true, useFindAndModify: false, runValidation: true }
           );
           if (refreshTokenData._doc.data.includes(refreshToken)) {
-            res
-              .status(201)
-              .json({ accessToken, refreshToken, role: [user.role] });
+            res.status(200).json({
+              accessToken,
+              refreshToken,
+              user: { firstName: user.firstName, surname: user.surname },
+              roles: [user.role, "GENERAL"],
+            });
           }
         } else {
           res
@@ -272,11 +278,11 @@ router.post("/login", async (req, res) => {
       let adminData = await Admin.findOne({ firstName: req.body.firstName });
       console.log(adminData);
       if (adminData !== null) {
-        const { firstName, lastName, role, password } = adminData;
+        const { firstName, surname, role, password } = adminData;
         // Step 2 : Comparing passwords using bcrypt compare function.
         try {
           if (await bcrypt.compare(req.body.password, password)) {
-            const user = { firstName, lastName, role };
+            const user = { firstName, surname, role };
             const accessToken = generateAccessToken(user);
             const refreshToken = generateRefreshToken(user);
             let { _id: tokenID } = await RefreshToken.findOne({
@@ -288,9 +294,12 @@ router.post("/login", async (req, res) => {
               { new: true, useFindAndModify: false, runValidation: true }
             );
             if (refreshTokenData._doc.data.includes(refreshToken)) {
-              res
-                .status(201)
-                .json({ accessToken, refreshToken, role: [user.role] });
+              res.status(200).json({
+                accessToken,
+                refreshToken,
+                user: { firstName: user.firstName, surname: user.surname },
+                roles: [user.role, "GENERAL"],
+              });
             }
             //Step 5 : Sending refresh and access token to client.
           } else {
@@ -337,8 +346,8 @@ router.post("/refresh-token", async (req, res) => {
       });
     } else {
       // We destructure to sieve only the info that we require.
-      const { firstName, lastName, role } = payload;
-      const userData = { firstName, lastName, role };
+      const { firstName, surname, role } = payload;
+      const userData = { firstName, surname, role };
       const accessToken = generateAccessToken(userData);
       res.json({ accessToken, refreshToken });
     }
