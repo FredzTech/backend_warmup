@@ -13,6 +13,7 @@ const {
   fileCleanup,
   createCourseS3,
   findCourse,
+  createCourseDirect,
 } = require("../controllers/CourseController");
 
 // CONFIGURING MULTER.
@@ -69,18 +70,21 @@ const upload = multer({
 router.get("/", (req, res) => {
   console.log("Welcome to course page.");
 });
-router.post(
-  "/new-course",
-  debugReq,
-  upload.single("course"),
-  (req, res, next) => {
-    console.log("Req has finished executing.");
-    console.log(req.file);
-    console.log("We can now proceed to save this data inside our database.");
-    next();
-  },
-  createCourseS3
-);
+
+// router.post(
+//   "/new-course",
+//   debugReq,
+//   upload.single("course"),
+//   (req, res, next) => {
+//     console.log("Req has finished executing.");
+//     console.log(req.file);
+//     console.log("We can now proceed to save this data inside our database.");
+//     next();
+//   },
+//   createCourseS3
+// );
+
+router.post("/new-course", createCourseDirect);
 
 // READING THE DOCUMENT
 //======================

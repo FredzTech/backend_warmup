@@ -16,7 +16,7 @@ const AdminSchema = new Schema(
       type: String,
       required: true,
       uppercase: true,
-      default: "tutor",
+      default: "EM-203",
     },
   },
   {

@@ -17,6 +17,7 @@ const CourseRoute = require("./routes/CourseRoute");
 const UnitRoute = require("./routes/UnitRoute");
 const AuthRoute = require("./routes/AuthRoute");
 const MulterS3Route = require("./routes/MulterS3Route");
+const S3DirectUpload = require("./routes/s3DirectUploadRoute");
 // CONNECTION TO DATABASE,
 //========================
 mongoose.connect(process.env.DATABASE_URL, {
@@ -42,6 +43,7 @@ app.use(cors());
 app.use("/chapter", ChapterRoute);
 app.use("/lesson", LessonRoute);
 app.use("/s3", S3Route);
+app.use("/s3Direct", S3DirectUpload);
 // app.use("/s3", MulterS3Route);
 app.use("/course", CourseRoute);
 // app.use("/course", MulterS3Route);

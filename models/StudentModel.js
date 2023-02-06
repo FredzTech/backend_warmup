@@ -15,25 +15,13 @@ const StudentSchema = new Schema(
       type: String,
       required: true,
       uppercase: true,
-      default: "student",
+      default: "EM-201",
     },
   },
   {
     timestamps: true,
   }
 );
-
-// // Hashes our password b4 saving to the DB
-// //==========================================
-// CredentialSchema.pre("save", async (req, res, next) => {
-//   try {
-//     const hashedPassword = await bcrypt.hash(this.password, 10);
-//     this.password = hashedPassword;
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// });
 
 const Student = mongoose.model("Student", StudentSchema);
 

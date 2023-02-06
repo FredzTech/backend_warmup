@@ -38,11 +38,10 @@ const createCourseS3 = async (req, res) => {
   }
 };
 
-const createCourse = async (req, res) => {
+const createCourseDirect = async (req, res) => {
   try {
-    console.log("Upload success. Saving to database!");
-    let { courseTitle } = req.body;
-    let { Location: courseImage } = req.results;
+    console.log("Saving the course directly!");
+    let { courseTitle, courseImage } = req.body;
     let courseData = { courseTitle, courseImage };
     let newCourse = await Course.create(courseData);
     newCourse.save();
@@ -50,10 +49,31 @@ const createCourse = async (req, res) => {
   } catch (err) {
     // DESTRUCTURING MONGODB ATLAS ERROR.
     if (err.code == 11000) {
-      console.log(JSON.stringify(err));
-      let errorBody = { message: "This course already exists!" };
-      res.status(400).json(errorBody);
+      res.sendStatus(409);
     } else {
+      console.log(JSON.stringify(err));
+      let { _message, name } = err;
+      let errorBody = { _message, name };
+      res.status(400).json(errorBody);
+    }
+  }
+};
+
+const createCourse = async (req, res) => {
+  try {
+    let { courseTitle } = req.body;
+    let { Location: courseImage } = req.results;
+    let courseData = { courseTitle, courseImage };
+    let newCourse = await Course.create(courseData);
+    newCourse.save();
+    res.sendStatus(201);
+  } catch (err) {
+    console.log(err.code);
+    // DESTRUCTURING MONGODB ATLAS ERROR.
+    if (err.code == 11000) {
+      res.sendStatus(409);
+    } else {
+      console.log(JSON.stringify(err));
       let { _message, name } = err;
       let errorBody = { _message, name };
       res.status(400).json(errorBody);
@@ -86,4 +106,5 @@ module.exports = {
   findAllCourses,
   fileCleanup,
   findCourse,
+  createCourseDirect,
 };
