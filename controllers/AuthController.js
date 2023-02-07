@@ -14,16 +14,17 @@ const RefreshToken = require("../models/RefreshTokensModel");
 //=======================
 const generateAccessToken = (userData) => {
   return jwt.sign(userData, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "5m", //Usually shorter for sercurity reasons.
+    expiresIn: "30m", //Usually shorter for sercurity reasons.
   });
 };
 const generateRefreshToken = (userData) => {
   return jwt.sign(userData, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "10m", //Should have a longer expiration time.
+    expiresIn: "1y", //Should have a longer expiration time.
   });
 };
 const authenticateToken = (req, res, next) => {
   // Destructures & Returns payload if comparison is successfull
+  console.log(req.headers);
   const authHeader = req.headers[`authorization`];
   const token = authHeader && authHeader.split(" ")[1]; //
   console.log(`Auth Token ${token}`);
@@ -50,7 +51,7 @@ const createTokenModel = async (req, res) => {
     // let { adminId } = req.params;
     const data = {
       name: "tokens",
-      data: ["Hello"],
+      data: ["Initializer"],
     };
     let tokenData = await RefreshToken.create(data);
     res.status(200).json(tokenData);
@@ -180,10 +181,10 @@ const logInUser = async (req, res) => {
   let studentData = await Student.findOne({ firstName: req.body.firstName });
   console.log(studentData);
   if (studentData !== null) {
-    const { firstName, surname, role, password } = studentData;
+    const { firstName, surname, role, password, _id } = studentData;
     try {
       if (await bcrypt.compare(req.body.password, password)) {
-        const user = { firstName, surname, role }; //Our payload.
+        const user = { firstName, surname, role, _id }; //Our payload.
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
         let { _id: tokenID } = await RefreshToken.findOne({ name: "tokens" });
@@ -217,10 +218,10 @@ const logInUser = async (req, res) => {
     // We look for whether he/ she is a tutor.
     let tutorData = await Tutor.findOne({ firstName: req.body.firstName });
     if (tutorData !== null) {
-      const { firstName, surname, role, password } = tutorData;
+      const { firstName, surname, role, password, _id } = tutorData;
       try {
         if (await bcrypt.compare(req.body.password, password)) {
-          const user = { firstName, surname, role };
+          const user = { firstName, surname, role, _id };
           const accessToken = generateAccessToken(user);
           const refreshToken = generateRefreshToken(user);
           console.log(user);
@@ -260,11 +261,11 @@ const logInUser = async (req, res) => {
       let adminData = await Admin.findOne({ firstName: req.body.firstName });
       console.log(adminData);
       if (adminData !== null) {
-        const { firstName, surname, role, password } = adminData;
+        const { firstName, surname, role, password, _id } = adminData;
         // Step 2 : Comparing passwords using bcrypt compare function.
         try {
           if (await bcrypt.compare(req.body.password, password)) {
-            const user = { firstName, surname, role };
+            const user = { firstName, surname, role, _id };
             const accessToken = generateAccessToken(user);
             const refreshToken = generateRefreshToken(user);
             let { _id: tokenID } = await RefreshToken.findOne({
@@ -323,14 +324,23 @@ const logOutUser = async (req, res) => {
 // TUTOR SECTION
 const findTutorById = async (req, res) => {
   try {
-    let { tutorId } = req.params;
-    let tutorData = await Tutor.findById(tutorId);
+    let { _id: tutorId } = req.user;
+    let tutorData = await Tutor.findById(tutorId).populate({
+      path: "units",
+      populate: "unitChapters",
+    });
+    console.log(tutorData);
     res.status(200).json(tutorData);
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
   }
 };
+// let data = await Unit.findById(unitId).populate({
+//   path: "unitChapters",
+//   // Populating the lessons array for every chapter.
+//   populate: { path: "chapterLessons" },
+// });
 const findAllTutors = async (req, res) => {
   try {
     const tutorData = await Tutor.find({});

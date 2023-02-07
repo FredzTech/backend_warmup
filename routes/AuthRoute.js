@@ -31,7 +31,7 @@ router.delete("/student", deleteStudentById);
 
 // TUTOR ROUTES
 router.get("/all-tutors", findAllTutors);
-router.get("/tutor/:tutorId", findTutorById);
+router.get("/tutor", authenticateToken, findTutorById);
 router.post("/register-tutor", registerTutor);
 router.delete("/tutor", deleteTutorById);
 
