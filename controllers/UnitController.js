@@ -38,7 +38,6 @@ const getUnitWithLessons = async (req, res) => {
       populate: { path: "chapterLessons" },
     });
     console.log("Requested unit data");
-    console.log(data);
     res.json(data);
   } catch (error) {
     res.status(500).send(error);

@@ -85,7 +85,7 @@ const findAllCourses = async (req, res) => {
   // All the data will already be appended by the units.
   try {
     let data = await Course.find({}); //Find everything for me.
-    res.status(200).json(data);
+    res.json(data);
   } catch (error) {
     res.status(500).send(error);
   }
@@ -95,7 +95,7 @@ const findCourse = async (req, res) => {
   const { courseId } = req.params;
   try {
     let data = await Course.findById(courseId).populate("units"); //Find everything for me.
-    res.status(200).json(data);
+    res.json(data);
   } catch (error) {
     res.status(500).send(error);
   }

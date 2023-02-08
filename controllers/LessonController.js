@@ -41,7 +41,16 @@ const createLesson = async (req, res) => {
     }
   }
 };
-
+const findLesson = async (req, res) => {
+  // All the data will already be appended by the units.
+  const { lessonId } = req.params;
+  try {
+    let data = await Lesson.findById(lessonId);
+    res.json(data);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
 const createLessonS3 = async (req, res) => {
   try {
     const { location } = req.file;
@@ -83,4 +92,4 @@ const createLessonS3 = async (req, res) => {
   }
 };
 
-module.exports = { createLesson, createLessonS3 };
+module.exports = { findLesson, createLesson, createLessonS3 };

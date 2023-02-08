@@ -13,6 +13,7 @@ require("dotenv/config");
 const {
   createLesson,
   createLessonS3,
+  findLesson,
 } = require("../controllers/LessonController");
 const { getFileStream, uploadFile } = require("../controllers/s3Controller");
 
@@ -85,5 +86,8 @@ const upload = multer({
 // );
 
 router.post("/new-lesson", upload.single("video"), createLessonS3);
+
+router.get("/:lessonId", findLesson);
+
 // EXPORTING A MODEL.
 module.exports = router;

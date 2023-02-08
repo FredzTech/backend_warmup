@@ -27,7 +27,6 @@ const createChapter = async (req, res) => {
           .status(500)
           .send({ message: "Something went wrong while updating Unit model" });
       }
-      res.status(201).json(chapterData);
     } else {
       res.status(400).json({ message: "Chapter not found" });
     }
@@ -40,7 +39,7 @@ const createChapter = async (req, res) => {
 const findAllChapters = async (req, res) => {
   try {
     let data = await Chapter.find({});
-    res.status(200).json(data);
+    res.json(data);
   } catch (error) {
     res.status(500).send(error);
   }
@@ -50,7 +49,7 @@ const populateChapterLessons = async (req, res) => {
   try {
     let data = await Chapter.find({}).populate("ChapterLessons");
     console.log(data);
-    res.status(200).json(data);
+    res.json(data);
   } catch (error) {
     res.status(500).send(error);
   }

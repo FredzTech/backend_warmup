@@ -336,11 +336,6 @@ const findTutorById = async (req, res) => {
     res.status(500).send(error);
   }
 };
-// let data = await Unit.findById(unitId).populate({
-//   path: "unitChapters",
-//   // Populating the lessons array for every chapter.
-//   populate: { path: "chapterLessons" },
-// });
 const findAllTutors = async (req, res) => {
   try {
     const tutorData = await Tutor.find({});
