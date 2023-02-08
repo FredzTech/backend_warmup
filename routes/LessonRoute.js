@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs"); //Enables us to interact with the servers fs performing crud ops to it.
 const util = require("util"); //Kinda revolutionalizes fs methods to promises which become sweeter to handle.s
-const unlinkFile = util.promisify(fs.unlink); //Nispy method for deleting files.
 const multer = require("multer");
 const aws = require("aws-sdk");
 const multerS3 = require("multer-s3");
@@ -50,42 +49,9 @@ const storage = multerS3({
 const upload = multer({
   storage,
 });
-// CONFIGURING MULTER.
-//====================
-// const upload = multer({ dest: "uploads/" }); //This is our shot for filtering our uploads.
 
-// CRUD OPERATIONS
-//=================
-// CREATING A DOCUMENT.
-// When creating a lesson, we would like to save the lesson id to its respective chapter.
-// router.post(
-//   "/new-lesson",
-//   upload.single("video"),
-//   async (req, res, next) => {
-//     try {
-//       console.log("Finished upload to server.");
-//       const file = req.file;
-//       const result = await uploadFile(file);
-//       console.log("Finished upload to bucket");
-//       await unlinkFile(file.path);
-//       console.log(result);
-//       req.result = result;
-//       console.log(`Additional info for save
-//     =======================`);
-//       console.log(`${JSON.stringify(req.body)}`);
-//       // OBJECT TO RETURNED AFTER SAVE.
-
-//       // res.send({ imagePath: `/images/${result.Key}` });
-//       next();
-//     } catch (err) {
-//       console.log("Error that occured instead of crashing!");
-//       console.log(JSON.stringify(err));
-//     }
-//   },
-//   createLesson
-// );
-
-router.post("/new-lesson", upload.single("video"), createLessonS3);
+// router.post("/new-lesson", upload.single("video"), createLessonS3);
+router.post("/new-lesson", createLesson);
 
 router.get("/:lessonId", findLesson);
 

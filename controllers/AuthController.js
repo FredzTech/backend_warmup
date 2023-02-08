@@ -229,9 +229,6 @@ const logInUser = async (req, res) => {
           let data = await RefreshToken.findOne({
             name: "tokens",
           });
-
-          console.log(data);
-
           let refreshTokenData = await RefreshToken.findByIdAndUpdate(
             tokenID,
             { $push: { data: refreshToken } },

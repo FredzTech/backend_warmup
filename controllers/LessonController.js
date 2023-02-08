@@ -6,22 +6,25 @@ const Chapter = require("../models/ChapterModel");
 // Perfect Illustration of One to many relationship.
 const createLesson = async (req, res) => {
   try {
-    console.log(req.result);
-    const { Location, Key } = req.result;
-    console.log(`New Lesson Request. ${JSON.stringify(req.body)}`);
-    let { chapterName, lessonNumber, lessonName, lessonNotes } = req.body;
+    let {
+      chapterID,
+      lessonNumber,
+      lessonName,
+      lessonNotes,
+      lessonType,
+      lessonUrl,
+    } = req.body;
     let lessonData = {
       lessonNumber,
       lessonName,
       lessonNotes,
-      lessonVideo: Location,
+      lessonType,
+      lessonUrl,
     };
-    console.log(`Data to be saved`);
-    console.log(lessonData);
+    console.log(`Lesson Data to be saved : ${JSON.stringify(lessonData)}`);
     let newLesson = await Lesson.create(lessonData);
     newLesson.save();
     let { _id: lessonID } = newLesson; // Extracting ID from staved Lesson
-    let { _id: chapterID } = await Chapter.findOne({ chapterName }); //Taking the ID of C Lesson
     let chapterData = await Chapter.findByIdAndUpdate(
       chapterID,
       { $push: { chapterLessons: lessonID } },
