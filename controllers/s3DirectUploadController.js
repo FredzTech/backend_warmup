@@ -20,14 +20,18 @@ const s3 = new S3({
 });
 
 // Fetches our file in a stream. Meaning we can start consuming our data as it arrives.
-function getFileStream(fileKey) {
-  const downloadParams = {
-    Key: fileKey,
-    Bucket: bucketName,
-  };
-
-  return s3.getObject(downloadParams).createReadStream();
-}
+const getFileStream = async (fileKey) => {
+  try {
+    const downloadParams = {
+      Key: fileKey,
+      Bucket: bucketName,
+    };
+    const data = await s3.getObject(downloadParams).createReadStream();
+    return data;
+  } catch (e) {
+    throw new Error(`Could not retrieve file from S3: ${e.message}`);
+  }
+};
 
 // Only interested with the file type.
 const getSignedUrl = async (req, res) => {

@@ -42,6 +42,7 @@ const storage = multerS3({
   metadata: function (req, file, cb) {
     //This is where we store the additional data that we need later on to store in our database.
     console.log(file);
+    // The content-type is also an important parameter to prevent anomalies.
     cb(null, { fieldName: file.fieldname, originalName: file.originalname });
   },
   key: function (req, file, cb) {
